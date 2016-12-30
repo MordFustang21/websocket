@@ -1,4 +1,7 @@
 # Supernova Websocket
+[![GoDoc](https://godoc.org/github.com/MordFustang21/supernova?status.svg)](https://godoc.org/github.com/MordFustang21/websocket)
+[![Go Report Card](https://goreportcard.com/badge/github.com/mordfustang21/supernova)](https://goreportcard.com/report/github.com/mordfustang21/websocket)
+[![Build Status](https://travis-ci.org/MordFustang21/websocket.svg?branch=master)](https://travis-ci.org/MordFustang21/websocket)
 
 Add websocket support for supernova/fasthttp
 
