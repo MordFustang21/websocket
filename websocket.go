@@ -5,6 +5,7 @@
 package websocket
 
 import (
+	"github.com/mordfustang21/supernova"
 	"github.com/valyala/fasthttp"
 	"net"
 	"net/url"
@@ -46,18 +47,18 @@ type Upgrader struct {
 
 	// Error specifies the function for generating HTTP error responses. If Error
 	// is nil, then http.Error is used to generate the HTTP response.
-	Error func(ctx *Request, status int, reason error)
+	Error func(ctx *supernova.Request, status int, reason error)
 
 	// CheckOrigin returns true if the request Origin header is acceptable. If
 	// CheckOrigin is nil, the host in the Origin header must not be set or
 	// must match the host of the request.
-	CheckOrigin func(ctx *Request) bool
+	CheckOrigin func(ctx *supernova.Request) bool
 
 	// WebSocket connection handler
 	Handler func(*Conn)
 }
 
-func (u *Upgrader) returnError(ctx *Request, status int, reason string) error {
+func (u *Upgrader) returnError(ctx *supernova.Request, status int, reason string) error {
 	err := HandshakeError{reason}
 	if u.Error != nil {
 		u.Error(ctx, status, err)
@@ -70,7 +71,7 @@ func (u *Upgrader) returnError(ctx *Request, status int, reason string) error {
 }
 
 // checkSameOrigin returns true if the origin is not set or is equal to the request host.
-func checkSameOrigin(ctx *Request) bool {
+func checkSameOrigin(ctx *supernova.Request) bool {
 	origin := string(ctx.Request.Header.Peek(originHeader))
 	if len(origin) == 0 {
 		return true
@@ -82,7 +83,7 @@ func checkSameOrigin(ctx *Request) bool {
 	return u.Host == string(ctx.Host())
 }
 
-func (u *Upgrader) selectSubprotocol(ctx *Request) string {
+func (u *Upgrader) selectSubprotocol(ctx *supernova.Request) string {
 	if u.Subprotocols != nil {
 		clientProtocols := Subprotocols(ctx)
 		for _, serverProtocol := range u.Subprotocols {
@@ -105,7 +106,7 @@ func (u *Upgrader) selectSubprotocol(ctx *Request) string {
 //
 // If the upgrade fails, then Upgrade replies to the client with an HTTP error
 // response.
-func (u *Upgrader) Upgrade(ctx *Request, handlers ...func(*Conn)) error {
+func (u *Upgrader) Upgrade(ctx *supernova.Request, handlers ...func(*Conn)) error {
 	handler := u.Handler
 	if len(handlers) > 0 {
 		handler = handlers[0]
@@ -188,12 +189,12 @@ func (u *Upgrader) Upgrade(ctx *Request, handlers ...func(*Conn)) error {
 // If the request is not a valid WebSocket handshake, then Upgrade returns an
 // error of type HandshakeError. Applications should handle this error by
 // replying to the client with an HTTP error response.
-func Upgrade(ctx *Request, readBufSize, writeBufSize int) error {
+func Upgrade(ctx *supernova.Request, readBufSize, writeBufSize int) error {
 	u := Upgrader{ReadBufferSize: readBufSize, WriteBufferSize: writeBufSize}
-	u.Error = func(ctx *Request, status int, reason error) {
+	u.Error = func(ctx *supernova.Request, status int, reason error) {
 		// don't return errors to maintain backwards compatibility
 	}
-	u.CheckOrigin = func(ctx *Request) bool {
+	u.CheckOrigin = func(ctx *supernova.Request) bool {
 		// allow all connections by default
 		return true
 	}
@@ -202,7 +203,7 @@ func Upgrade(ctx *Request, readBufSize, writeBufSize int) error {
 
 // Subprotocols returns the subprotocols requested by the client in the
 // Sec-Websocket-Protocol header.
-func Subprotocols(ctx *Request) []string {
+func Subprotocols(ctx *supernova.Request) []string {
 	h := strings.TrimSpace(string(ctx.Request.Header.Peek(protocolHeader)))
 	if h == "" {
 		return nil
