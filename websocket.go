@@ -5,7 +5,7 @@
 package websocket
 
 import (
-	"github.com/mordfustang21/supernova"
+	"github.com/MordFustang21/supernova"
 	"github.com/valyala/fasthttp"
 	"net"
 	"net/url"
